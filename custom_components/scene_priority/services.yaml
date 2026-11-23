@@ -1,0 +1,67 @@
+activate:
+  name: Activate scene with priority
+  description: >
+    Push a scene onto its target devices' priority locks. Priority 1 is highest,
+    followed by 2, 3, etc.; 0 means unset (lowest, always overridden by any >0
+    priority). If blocked by a higher priority, the scene is queued underneath
+    and applied automatically when that lock releases.
+  fields:
+    scene_entity_id:
+      name: Scene
+      description: The Home Assistant scene entity to activate.
+      required: true
+      selector:
+        entity:
+          domain: scene
+    priority:
+      name: Priority
+      description: >
+        Priority level (1 is highest, 2 next, ...; 0 = unset/lowest). Optional
+        if configured in the integration options; defaults to 0.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          mode: box
+    transition:
+      name: Transition
+      description: Transition time in seconds passed to scene.turn_on.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 300
+          step: 1
+          unit_of_measurement: seconds
+          mode: slider
+
+release:
+  name: Release scene from locks
+  description: >
+    Remove a scene from all device priority locks and automatically apply the
+    next-highest scene remaining on each device, if any.
+  fields:
+    scene_entity_id:
+      name: Scene
+      description: The Home Assistant scene entity to release.
+      required: true
+      selector:
+        entity:
+          domain: scene
+    transition:
+      name: Transition
+      description: Transition time in seconds when falling back to a lower scene.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 300
+          step: 1
+          unit_of_measurement: seconds
+          mode: slider
+
+clear:
+  name: Clear priority locks
+  description: Remove all device priority locks without applying any scene.

@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate Python and JSON syntax
+        run: |
+          python -m py_compile custom_components/scene_priority/*.py
+          python -c "
+          import glob, json
+          for path in glob.glob('**/*.json', recursive=True):
+              with open(path, encoding='utf-8') as f:
+                  json.load(f)
+              print('JSON OK:', path)
+          "
+
+      - name: Set manifest version from tag and package zip
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG_NAME#v}"
+          echo "Packaging version: $VERSION"
+          python -c "
+          import json, os
+          version = os.environ['TAG_NAME'].lstrip('v')
+          path = 'custom_components/scene_priority/manifest.json'
+          with open(path, encoding='utf-8') as f:
+              data = json.load(f)
+          data['version'] = version
+          with open(path, 'w', encoding='utf-8') as f:
+              json.dump(data, f, indent=2, ensure_ascii=False)
+              f.write('\n')
+          "
+          (cd custom_components/scene_priority && zip -r ../../scene_priority.zip . -x "*__pycache__*")
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: scene_priority.zip
+          generate_release_notes: true

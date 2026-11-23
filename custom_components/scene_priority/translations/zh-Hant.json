@@ -1,0 +1,93 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Scene Priority（場景優先權）",
+        "description": "為 Home Assistant 原生場景加上裝置級優先權鎖（0 = 未設定/最低；1 最大、其次為 2…，任何 >0 都可覆蓋 0）。"
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Scene Priority 已經設定過了。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "設定場景優先權",
+        "description": "目前已設定的場景優先權：\n{current_list}",
+        "menu_options": {
+          "set_priority": "新增或更新場景優先權",
+          "remove_priority": "移除場景優先權"
+        }
+      },
+      "set_priority": {
+        "title": "設定場景優先權",
+        "description": "為場景指定優先權（0 = 未設定/最低；1 最大、再來是 2…）。任何 >0 的設定永遠可覆蓋 0。",
+        "data": {
+          "scene_entity_id": "場景",
+          "priority": "優先權（0=未設定，1=最大）"
+        }
+      },
+      "remove_priority": {
+        "title": "移除場景優先權",
+        "description": "移除設定，讓該場景回到預設優先權 0（未設定）。",
+        "data": {
+          "scene_entity_id": "場景"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_scene": {
+        "name": "目前生效場景",
+        "state": {
+          "idle": "待機中"
+        }
+      }
+    },
+    "number": {
+      "scene_priority": {
+        "name": "{scene_name} 優先權"
+      }
+    }
+  },
+  "services": {
+    "activate": {
+      "name": "以優先權啟動場景",
+      "description": "依優先權嘗試啟動場景並鎖定目標裝置（1 最大、其次為 2…；0 為未設定/最低）。若被更高優先權鎖住，會自動排隊待釋放後補執行。",
+      "fields": {
+        "scene_entity_id": {
+          "name": "場景",
+          "description": "要啟動的 Home Assistant 場景實體。"
+        },
+        "priority": {
+          "name": "優先權",
+          "description": "優先權數字（1 最大、再來是 2…；0 為未設定/最低）。未填則使用整合設定值。"
+        },
+        "transition": {
+          "name": "轉換時間",
+          "description": "傳遞給 scene.turn_on 的過渡秒數。"
+        }
+      }
+    },
+    "release": {
+      "name": "釋放場景鎖定",
+      "description": "將指定場景從所有裝置的優先權鎖中移除，並自動補執行底層次高優先權的場景。",
+      "fields": {
+        "scene_entity_id": {
+          "name": "場景",
+          "description": "要釋放的 Home Assistant 場景實體。"
+        },
+        "transition": {
+          "name": "轉換時間",
+          "description": "退回底層場景時的過渡秒數。"
+        }
+      }
+    },
+    "clear": {
+      "name": "清空所有優先權鎖",
+      "description": "移除所有裝置的優先權鎖定，但不執行任何場景。"
+    }
+  }
+}

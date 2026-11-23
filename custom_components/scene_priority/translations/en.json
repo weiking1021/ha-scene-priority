@@ -1,0 +1,93 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Scene Priority",
+        "description": "Manage Home Assistant scenes with per-device priority locks (0 = unset/lowest; 1 = highest, 2 next, etc.)."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Scene Priority is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure Scene Priorities",
+        "description": "Current configured priorities:\n{current_list}",
+        "menu_options": {
+          "set_priority": "Add or update scene priority",
+          "remove_priority": "Remove scene priority"
+        }
+      },
+      "set_priority": {
+        "title": "Set Scene Priority",
+        "description": "Assign a priority (0 = unset/lowest; 1 = highest, then 2, 3...). Any >0 priority overrides 0.",
+        "data": {
+          "scene_entity_id": "Scene",
+          "priority": "Priority (0=unset, 1=highest)"
+        }
+      },
+      "remove_priority": {
+        "title": "Remove Scene Priority",
+        "description": "Reset a scene back to default priority 0 (unset).",
+        "data": {
+          "scene_entity_id": "Scene"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_scene": {
+        "name": "Active Scene",
+        "state": {
+          "idle": "Idle"
+        }
+      }
+    },
+    "number": {
+      "scene_priority": {
+        "name": "{scene_name} Priority"
+      }
+    }
+  },
+  "services": {
+    "activate": {
+      "name": "Activate scene with priority",
+      "description": "Push a scene onto its target devices' priority locks. Priority 1 is highest, followed by 2, 3, etc.; 0 means unset (lowest).",
+      "fields": {
+        "scene_entity_id": {
+          "name": "Scene",
+          "description": "The Home Assistant scene entity to activate."
+        },
+        "priority": {
+          "name": "Priority",
+          "description": "Priority level (1 is highest, 2 next, ...; 0 = unset/lowest)."
+        },
+        "transition": {
+          "name": "Transition",
+          "description": "Transition time in seconds passed to scene.turn_on."
+        }
+      }
+    },
+    "release": {
+      "name": "Release scene from locks",
+      "description": "Remove a scene from all device priority locks and automatically apply the next-highest scene remaining on each device, if any.",
+      "fields": {
+        "scene_entity_id": {
+          "name": "Scene",
+          "description": "The Home Assistant scene entity to release."
+        },
+        "transition": {
+          "name": "Transition",
+          "description": "Transition time in seconds when falling back to a lower scene."
+        }
+      }
+    },
+    "clear": {
+      "name": "Clear priority locks",
+      "description": "Remove all device priority locks without applying any scene."
+    }
+  }
+}
